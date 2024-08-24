@@ -71,9 +71,9 @@ export function byteArrayToString(array: Uint8Array): string {
 }
 
 export function isSignedTxn(
-  txnDecodeObj: algosdk.EncodedTransaction | algosdk.EncodedSignedTransaction
-): txnDecodeObj is algosdk.EncodedSignedTransaction {
-  return (txnDecodeObj as algosdk.EncodedSignedTransaction).txn !== undefined
+  txnDecodeObj: algosdk.Transaction | algosdk.SignedTransaction
+): txnDecodeObj is algosdk.SignedTransaction {
+  return (txnDecodeObj as algosdk.SignedTransaction).txn !== undefined
 }
 
 export function isTransaction(item: any): item is algosdk.Transaction {

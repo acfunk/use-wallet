@@ -189,20 +189,34 @@ describe('KmdWallet', () => {
     const notConnectedAcct = 'EW64GC6F24M7NDSC5R3ES4YUVE3ZXXNMARJHDCCCLIHZU6TBEOC7XRSBG4'
 
     const txnParams = {
-      from: connectedAcct1,
-      to: connectedAcct2,
-      fee: 10,
-      firstRound: 51,
-      lastRound: 61,
-      genesisHash: 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
-      genesisID: 'mainnet-v1.0'
+      type: algosdk.TransactionType.pay,
+      sender: connectedAcct1,
+      suggestedParams: {
+        fee: 10,
+        minFee: 1000,
+        firstValid: 51,
+        lastValid: 61,
+        genesisID: 'mainnet-v1.0'
+      }
     }
 
     // Transactions used in tests
-    const txn1 = new algosdk.Transaction({ ...txnParams, amount: 1000 })
-    const txn2 = new algosdk.Transaction({ ...txnParams, amount: 2000 })
-    const txn3 = new algosdk.Transaction({ ...txnParams, amount: 3000 })
-    const txn4 = new algosdk.Transaction({ ...txnParams, amount: 4000 })
+    const txn1 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: connectedAcct2, amount: 1000 }
+    })
+    const txn2 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: connectedAcct2, amount: 2000 }
+    })
+    const txn3 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: connectedAcct2, amount: 3000 }
+    })
+    const txn4 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: connectedAcct2, amount: 4000 }
+    })
 
     beforeEach(async () => {
       // Mock two connected accounts
@@ -338,20 +352,20 @@ describe('KmdWallet', () => {
       it('should only send transactions with connected signers for signature', async () => {
         const canSignTxn1 = new algosdk.Transaction({
           ...txnParams,
-          from: connectedAcct1,
-          amount: 1000
+          sender: connectedAcct1,
+          paymentParams: { receiver: connectedAcct2, amount: 1000 }
         })
 
         const cannotSignTxn2 = new algosdk.Transaction({
           ...txnParams,
-          from: notConnectedAcct,
-          amount: 2000
+          sender: notConnectedAcct,
+          paymentParams: { receiver: connectedAcct2, amount: 2000 }
         })
 
         const canSignTxn3 = new algosdk.Transaction({
           ...txnParams,
-          from: connectedAcct2,
-          amount: 3000
+          sender: connectedAcct2,
+          paymentParams: { receiver: connectedAcct2, amount: 3000 }
         })
 
         // Signer for gtxn2 is not a connected account

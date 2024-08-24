@@ -268,14 +268,19 @@ describe('CustomWallet', () => {
 
   describe('signTransactions', () => {
     const txn = new algosdk.Transaction({
-      from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-      to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-      amount: 1000,
-      fee: 10,
-      firstRound: 51,
-      lastRound: 61,
-      genesisHash: 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
-      genesisID: 'mainnet-v1.0'
+      type: algosdk.TransactionType.pay,
+      sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      paymentParams: {
+        receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+        amount: 1000
+      },
+      suggestedParams: {
+        fee: 10,
+        minFee: 1000,
+        firstValid: 51,
+        lastValid: 61,
+        genesisID: 'mainnet-v1.0'
+      }
     })
 
     const txnGroup = [txn]
@@ -312,14 +317,19 @@ describe('CustomWallet', () => {
 
   describe('transactionSigner', () => {
     const txn = new algosdk.Transaction({
-      from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-      to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-      amount: 1000,
-      fee: 10,
-      firstRound: 51,
-      lastRound: 61,
-      genesisHash: 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
-      genesisID: 'mainnet-v1.0'
+      type: algosdk.TransactionType.pay,
+      sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      paymentParams: {
+        receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+        amount: 1000
+      },
+      suggestedParams: {
+        fee: 10,
+        minFee: 1000,
+        firstValid: 51,
+        lastValid: 61,
+        genesisID: 'mainnet-v1.0'
+      }
     })
 
     const txnGroup = [txn]

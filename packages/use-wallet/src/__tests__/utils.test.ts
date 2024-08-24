@@ -49,22 +49,27 @@ describe('compareAccounts', () => {
 
 describe('isSignedTxn', () => {
   const transaction = new algosdk.Transaction({
-    from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    fee: 10,
-    amount: 847,
-    firstRound: 51,
-    lastRound: 61,
-    genesisHash: 'JgsgCaCTqIaLeVhyL6XlRu3n7Rfk2FxMeK+wRSaQ7dI=',
-    genesisID: 'testnet-v1.0'
+    type: algosdk.TransactionType.pay,
+    sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+    paymentParams: {
+      receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      amount: 847
+    },
+    suggestedParams: {
+      fee: 10,
+      minFee: 1000,
+      firstValid: 51,
+      lastValid: 61,
+      genesisID: 'testnet-v1.0'
+    }
   })
 
   const encodedTxn = {
-    amt: transaction.amount,
+    amt: transaction.payment?.amount,
     fee: transaction.fee,
-    fv: transaction.firstRound,
-    lv: transaction.lastRound,
-    snd: Buffer.from(transaction.from.publicKey),
+    fv: transaction.firstValid,
+    lv: transaction.lastValid,
+    snd: transaction.sender.publicKey,
     type: 'pay',
     gen: transaction.genesisID,
     gh: transaction.genesisHash,
@@ -74,24 +79,31 @@ describe('isSignedTxn', () => {
   const encodedSignedTxn = { txn: encodedTxn, sig: Buffer.from('sig') }
 
   it('should return true if the object is a signed transaction', () => {
+    // @ts-expect-error custom-built txn won't pass type check
     expect(isSignedTxn(encodedSignedTxn)).toBe(true)
   })
 
   it('should return false if the object is not a signed transaction', () => {
+    // @ts-expect-error custom-built txn won't pass type check
     expect(isSignedTxn(encodedTxn)).toBe(false)
   })
 })
 
 describe('isTransaction', () => {
   const transaction = new algosdk.Transaction({
-    from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    fee: 10,
-    amount: 847,
-    firstRound: 51,
-    lastRound: 61,
-    genesisHash: 'JgsgCaCTqIaLeVhyL6XlRu3n7Rfk2FxMeK+wRSaQ7dI=',
-    genesisID: 'testnet-v1.0'
+    type: algosdk.TransactionType.pay,
+    sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+    paymentParams: {
+      receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      amount: 847
+    },
+    suggestedParams: {
+      fee: 10,
+      minFee: 1000,
+      firstValid: 51,
+      lastValid: 61,
+      genesisID: 'testnet-v1.0'
+    }
   })
 
   const uInt8Array = transaction.toByte()
@@ -119,14 +131,19 @@ describe('isTransaction', () => {
 
 describe('isTransactionArray', () => {
   const transaction = new algosdk.Transaction({
-    from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    fee: 10,
-    amount: 847,
-    firstRound: 51,
-    lastRound: 61,
-    genesisHash: 'JgsgCaCTqIaLeVhyL6XlRu3n7Rfk2FxMeK+wRSaQ7dI=',
-    genesisID: 'testnet-v1.0'
+    type: algosdk.TransactionType.pay,
+    sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+    paymentParams: {
+      receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      amount: 847
+    },
+    suggestedParams: {
+      fee: 10,
+      minFee: 1000,
+      firstValid: 51,
+      lastValid: 61,
+      genesisID: 'testnet-v1.0'
+    }
   })
 
   const uInt8Array = transaction.toByte()
@@ -158,25 +175,35 @@ describe('isTransactionArray', () => {
 
 describe('flattenTxnGroup', () => {
   const transaction1 = new algosdk.Transaction({
-    from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    fee: 10,
-    amount: 847,
-    firstRound: 51,
-    lastRound: 61,
-    genesisHash: 'JgsgCaCTqIaLeVhyL6XlRu3n7Rfk2FxMeK+wRSaQ7dI=',
-    genesisID: 'testnet-v1.0'
+    type: algosdk.TransactionType.pay,
+    sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+    paymentParams: {
+      receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      amount: 847
+    },
+    suggestedParams: {
+      fee: 10,
+      minFee: 1000,
+      firstValid: 51,
+      lastValid: 61,
+      genesisID: 'testnet-v1.0'
+    }
   })
 
   const transaction2 = new algosdk.Transaction({
-    from: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    to: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
-    fee: 15,
-    amount: 500,
-    firstRound: 100,
-    lastRound: 200,
-    genesisHash: 'JgsgCaCTqIaLeVhyL6XlRu3n7Rfk2FxMeK+wRSaQ7dI=',
-    genesisID: 'testnet-v1.0'
+    type: algosdk.TransactionType.pay,
+    sender: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+    paymentParams: {
+      receiver: '7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q',
+      amount: 500
+    },
+    suggestedParams: {
+      fee: 15,
+      minFee: 1000,
+      firstValid: 100,
+      lastValid: 200,
+      genesisID: 'testnet-v1.0'
+    }
   })
 
   const nestedTxnGroup = [[transaction1, transaction2], [transaction1]]

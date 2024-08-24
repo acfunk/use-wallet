@@ -105,7 +105,7 @@ export class MnemonicWallet extends BaseWallet {
 
     const walletAccount = {
       name: `${this.metadata.name} Account`,
-      address: account.addr
+      address: account.addr.toString()
     }
 
     const walletState: WalletState = {
@@ -149,8 +149,8 @@ export class MnemonicWallet extends BaseWallet {
 
     txnGroup.forEach((txn, index) => {
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
-      const canSignTxn = signer === this.account!.addr
+      const signer = txn.sender.toString()
+      const canSignTxn = signer === this.account!.addr.toString()
 
       if (isIndexMatch && canSignTxn) {
         txnsToSign.push(txn)
@@ -167,9 +167,9 @@ export class MnemonicWallet extends BaseWallet {
     const txnsToSign: algosdk.Transaction[] = []
 
     txnGroup.forEach((txnBuffer, index) => {
-      const txnDecodeObj = algosdk.decodeObj(txnBuffer) as
-        | algosdk.EncodedTransaction
-        | algosdk.EncodedSignedTransaction
+      const txnDecodeObj = algosdk.msgpackRawDecode(txnBuffer) as
+        | algosdk.Transaction
+        | algosdk.SignedTransaction
 
       const isSigned = isSignedTxn(txnDecodeObj)
 
@@ -178,8 +178,8 @@ export class MnemonicWallet extends BaseWallet {
         : algosdk.decodeUnsignedTransaction(txnBuffer)
 
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
-      const canSignTxn = !isSigned && signer === this.account!.addr
+      const signer = txn.sender.toString()
+      const canSignTxn = !isSigned && signer === this.account!.addr.toString()
 
       if (isIndexMatch && canSignTxn) {
         txnsToSign.push(txn)

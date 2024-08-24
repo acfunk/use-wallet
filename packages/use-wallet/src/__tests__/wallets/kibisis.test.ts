@@ -259,20 +259,34 @@ describe('KibisisWallet', () => {
 
   describe('signing transactions', () => {
     const txnParams = {
-      from: ACCOUNT_1,
-      to: ACCOUNT_2,
-      fee: 10,
-      firstRound: 51,
-      lastRound: 61,
-      genesisHash: TESTNET_GENESIS_HASH,
-      genesisID: 'testnet-v1.0'
+      type: algosdk.TransactionType.pay,
+      sender: ACCOUNT_1,
+      suggestedParams: {
+        fee: 10,
+        minFee: 1000,
+        firstValid: 51,
+        lastValid: 61,
+        genesisID: 'mainnet-v1.0'
+      }
     }
 
     // Transactions used in tests
-    const txn1 = new algosdk.Transaction({ ...txnParams, amount: 1000 })
-    const txn2 = new algosdk.Transaction({ ...txnParams, amount: 2000 })
-    const txn3 = new algosdk.Transaction({ ...txnParams, amount: 3000 })
-    const txn4 = new algosdk.Transaction({ ...txnParams, amount: 4000 })
+    const txn1 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: ACCOUNT_2, amount: 1000 }
+    })
+    const txn2 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: ACCOUNT_2, amount: 2000 }
+    })
+    const txn3 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: ACCOUNT_2, amount: 3000 }
+    })
+    const txn4 = new algosdk.Transaction({
+      ...txnParams,
+      paymentParams: { receiver: ACCOUNT_2, amount: 4000 }
+    })
 
     // Mock signed transactions (base64 strings) returned by Kibisis
     const mockSignedTxns = [byteArrayToBase64(txn1.toByte())]
@@ -415,20 +429,20 @@ describe('KibisisWallet', () => {
       it('should only send transactions with connected signers for signature', async () => {
         const canSignTxn1 = new algosdk.Transaction({
           ...txnParams,
-          from: ACCOUNT_1,
-          amount: 1000
+          sender: ACCOUNT_1,
+          paymentParams: { receiver: ACCOUNT_2, amount: 1000 }
         })
 
         const cannotSignTxn2 = new algosdk.Transaction({
           ...txnParams,
-          from: 'EW64GC6F24M7NDSC5R3ES4YUVE3ZXXNMARJHDCCCLIHZU6TBEOC7XRSBG4', // EW64GC is not connected
-          amount: 2000
+          sender: 'EW64GC6F24M7NDSC5R3ES4YUVE3ZXXNMARJHDCCCLIHZU6TBEOC7XRSBG4', // EW64GC is not connected
+          paymentParams: { receiver: ACCOUNT_2, amount: 2000 }
         })
 
         const canSignTxn3 = new algosdk.Transaction({
           ...txnParams,
-          from: ACCOUNT_2,
-          amount: 3000
+          sender: ACCOUNT_2,
+          paymentParams: { receiver: ACCOUNT_2, amount: 3000 }
         })
 
         // Signer for gtxn2 is not a connected account

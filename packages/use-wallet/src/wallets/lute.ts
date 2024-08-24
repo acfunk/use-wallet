@@ -65,7 +65,10 @@ export class LuteWallet extends BaseWallet {
 
   private async getGenesisId(): Promise<string> {
     const algodClient = this.getAlgodClient()
-    const genesis = await algodClient.genesis().do()
+    console.info(`gen`, await algodClient.genesis().do())
+    const genesis = algosdk.parseJSON(await algodClient.genesis().do(), {
+      intDecoding: algosdk.IntDecoding.MIXED
+    })
     const genesisId = `${genesis.network}-${genesis.id}`
 
     return genesisId
@@ -134,7 +137,7 @@ export class LuteWallet extends BaseWallet {
 
     txnGroup.forEach((txn, index) => {
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = this.addresses.includes(signer)
 
       const txnString = byteArrayToBase64(txn.toByte())
@@ -156,9 +159,9 @@ export class LuteWallet extends BaseWallet {
     const txnsToSign: WalletTransaction[] = []
 
     txnGroup.forEach((txnBuffer, index) => {
-      const txnDecodeObj = algosdk.decodeObj(txnBuffer) as
-        | algosdk.EncodedTransaction
-        | algosdk.EncodedSignedTransaction
+      const txnDecodeObj = algosdk.msgpackRawDecode(txnBuffer) as
+        | algosdk.Transaction
+        | algosdk.SignedTransaction
 
       const isSigned = isSignedTxn(txnDecodeObj)
 
@@ -167,7 +170,7 @@ export class LuteWallet extends BaseWallet {
         : algosdk.decodeUnsignedTransaction(txnBuffer)
 
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = !isSigned && this.addresses.includes(signer)
 
       const txnString = byteArrayToBase64(txn.toByte())

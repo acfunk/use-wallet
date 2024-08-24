@@ -184,7 +184,7 @@ export class KibisisWallet extends BaseWallet {
     const algodClient = this.getAlgodClient()
     const version = await algodClient.versionsCheck().do()
 
-    return version.genesis_hash_b64
+    return byteArrayToBase64(version.genesisHashB64)
   }
 
   private async _initializeAVMWebClient(): Promise<AVMWebProviderSDK.AVMWebClient> {
@@ -412,7 +412,7 @@ export class KibisisWallet extends BaseWallet {
 
     txnGroup.forEach((txn, index) => {
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = this.addresses.includes(signer)
 
       const txnString = byteArrayToBase64(txn.toByte())
@@ -434,9 +434,9 @@ export class KibisisWallet extends BaseWallet {
     const txnsToSign: AVMWebProviderSDK.IARC0001Transaction[] = []
 
     txnGroup.forEach((txnBuffer, index) => {
-      const txnDecodeObj = algosdk.decodeObj(txnBuffer) as
-        | algosdk.EncodedTransaction
-        | algosdk.EncodedSignedTransaction
+      const txnDecodeObj = algosdk.msgpackRawDecode(txnBuffer) as
+        | algosdk.Transaction
+        | algosdk.SignedTransaction
 
       const isSigned = isSignedTxn(txnDecodeObj)
 
@@ -445,7 +445,7 @@ export class KibisisWallet extends BaseWallet {
         : algosdk.decodeUnsignedTransaction(txnBuffer)
 
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = !isSigned && this.addresses.includes(signer)
 
       const txnString = byteArrayToBase64(txn.toByte())

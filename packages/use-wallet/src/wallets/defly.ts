@@ -151,7 +151,7 @@ export class DeflyWallet extends BaseWallet {
 
     txnGroup.forEach((txn, index) => {
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = this.addresses.includes(signer)
 
       if (isIndexMatch && canSignTxn) {
@@ -171,9 +171,9 @@ export class DeflyWallet extends BaseWallet {
     const txnsToSign: SignerTransaction[] = []
 
     txnGroup.forEach((txnBuffer, index) => {
-      const txnDecodeObj = algosdk.decodeObj(txnBuffer) as
-        | algosdk.EncodedTransaction
-        | algosdk.EncodedSignedTransaction
+      const txnDecodeObj = algosdk.msgpackRawDecode(txnBuffer) as
+        | algosdk.Transaction
+        | algosdk.SignedTransaction
 
       const isSigned = isSignedTxn(txnDecodeObj)
 
@@ -182,7 +182,7 @@ export class DeflyWallet extends BaseWallet {
         : algosdk.decodeUnsignedTransaction(txnBuffer)
 
       const isIndexMatch = !indexesToSign || indexesToSign.includes(index)
-      const signer = algosdk.encodeAddress(txn.from.publicKey)
+      const signer = txn.sender.toString()
       const canSignTxn = !isSigned && this.addresses.includes(signer)
 
       if (isIndexMatch && canSignTxn) {
